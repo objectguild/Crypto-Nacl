@@ -379,9 +379,16 @@ Nacl >> macModuleName [
 ]
 
 { #category : #'accessing platform' }
+Nacl >> unix32ModuleName [
+
+    ^ self unixModuleName
+
+]
+
+{ #category : #'accessing platform' }
 Nacl >> unix64ModuleName [
 
-    ^ 'libsodium64.so'
+    ^ self unixModuleName
 
 ]
 
