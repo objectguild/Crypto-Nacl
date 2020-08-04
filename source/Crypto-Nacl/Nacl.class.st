@@ -121,11 +121,8 @@ Nacl class >> apiRandomBytes: buf length: buf_len [
 
 { #category : #api }
 Nacl class >> box: message nonce: nonce pk: pk sk: sk [
-	| c m |
-	m := (ByteArray new: self boxZeroBytes), message.
-	c := ByteArray new: m size.
-	self checkError: 'crypto_box failed' apiResult: (self apiCryptoBoxCipher: c message: m messageLength: m size nonce: nonce pk: pk sk: sk).
-	^ c copyFrom: self boxBoxZeroBytes + 1 to: c size
+	self deprecated: 'Please use #encryptMessage:withRecipientPublicKey:senderSecretKey:andNonce: instead'.
+	^ self encryptMessage: message withRecipientPublicKey: pk senderSecretKey: sk andNonce: nonce
 ]
 
 { #category : #api }
@@ -140,20 +137,14 @@ Nacl class >> boxBoxZeroBytes [
 
 { #category : #api }
 Nacl class >> boxKeypair [
-	| pk sk |
-	sk := ByteArray new: self boxSecretKeyBytes.
-	pk := ByteArray new: self boxPublicKeyBytes.
-	self checkError: 'crypto_box_keypair failed' apiResult: (self apiCryptoBoxKeypairPk: pk sk: sk).
-	^ NaclBoxSecretKey skBytes: sk pkBytes: pk
+	self deprecated: 'Please use #generateKeypair instead'.
+	^ self generateKeypair
 ]
 
 { #category : #api }
 Nacl class >> boxKeypairFromSeed: seed [
-	| sk pk |
-	sk := (Nacl hash: seed) copyFrom: 1 to: Nacl boxSecretKeyBytes.
-	pk := ByteArray new: Nacl boxPublicKeyBytes.
-	self apiCryptoScalarmultCurve25519BaseTarget: pk source: sk.
-	^ NaclBoxSecretKey skBytes: sk pkBytes: pk
+	self deprecated: 'Please use #deriveKeypairFromSeed: instead'.
+	^ self deriveKeypairFromSeed: seed
 ]
 
 { #category : #api }
@@ -168,11 +159,8 @@ Nacl class >> boxNonceBytes [
 
 { #category : #api }
 Nacl class >> boxOpen: ciphertext nonce: nonce pk: pk sk: sk [
-	| c m |
-	c := (ByteArray new: self boxBoxZeroBytes), ciphertext.
-	m := ByteArray new: c size.
-	self checkError: 'crypto_box_open failed' apiResult: (self apiCryptoBoxOpenMessage: m cipher: c cipherLength: c size nonce: nonce pk: pk sk: sk).
-	^ m copyFrom: self boxZeroBytes + 1 to: m size
+	self deprecated: 'Please use #verifyMessage:senderPublicKey:recipientSecretKey:andNonce: instead'.
+	^ self verifyCiphertext: ciphertext senderPublicKey: pk recipientSecretKey: sk andNonce: nonce
 ]
 
 { #category : #api }
@@ -193,6 +181,49 @@ Nacl class >> boxZeroBytes [
 { #category : #api }
 Nacl class >> checkError: message apiResult: n [
 	n isZero ifFalse: [NaclError signal: message]
+]
+
+{ #category : #api }
+Nacl class >> deriveKeypairFromSeed: seed [
+	"https://doc.libsodium.org/public-key_cryptography/authenticated_encryption
+	Authenticated encryption - Key pair generation
+	Deterministically derive a key pair from a single key seed.
+	
+	WebBrowser openOn: 'https://doc.libsodium.org/public-key_cryptography/authenticated_encryption'	"
+	| sk pk |
+	sk := (Nacl hash: seed) copyFrom: 1 to: Nacl boxSecretKeyBytes.
+	pk := ByteArray new: Nacl boxPublicKeyBytes.
+	self apiCryptoScalarmultCurve25519BaseTarget: pk source: sk.
+	^ NaclBoxSecretKey skBytes: sk pkBytes: pk
+]
+
+{ #category : #api }
+Nacl class >> encryptMessage: message withRecipientPublicKey: pk senderSecretKey: sk andNonce: nonce [
+	"https://doc.libsodium.org/public-key_cryptography/authenticated_encryption
+	Authenticated encryption - Combined mode
+	The authentication tag and the encrypted message are stored together (this is usually what you want).
+	Encrypts message with recipient's public key, sender's secret key and nonce.
+	
+	WebBrowser openOn: 'https://doc.libsodium.org/public-key_cryptography/authenticated_encryption'	"
+	| c m |
+	m := (ByteArray new: self boxZeroBytes), message.
+	c := ByteArray new: m size.
+	self checkError: 'crypto_box failed' apiResult: (self apiCryptoBoxCipher: c message: m messageLength: m size nonce: nonce pk: pk sk: sk).
+	^ c copyFrom: self boxBoxZeroBytes + 1 to: c size
+]
+
+{ #category : #api }
+Nacl class >> generateKeypair [
+	"https://doc.libsodium.org/public-key_cryptography/authenticated_encryption
+	Authenticated encryption - Key pair generation
+	Randomly generates a secret key and a corresponding public key.
+	
+	WebBrowser openOn: 'https://doc.libsodium.org/public-key_cryptography/authenticated_encryption'	"
+	| pk sk |
+	sk := ByteArray new: self boxSecretKeyBytes.
+	pk := ByteArray new: self boxPublicKeyBytes.
+	self checkError: 'crypto_box_keypair failed' apiResult: (self apiCryptoBoxKeypairPk: pk sk: sk).
+	^ NaclBoxSecretKey skBytes: sk pkBytes: pk
 ]
 
 { #category : #api }
@@ -370,6 +401,22 @@ Nacl class >> verify: signedMessage publicKey: publicKey [
 		apiResult: (self apiCryptoSignOpenBuffer: m bufferLength: mlenBuf signedMessage: signedMessage length: signedMessage size publicKey: publicKey).
 	mlen := ((mlenBuf longAt: 5 bigEndian: self isBigEndian) bitShift: 32) + (mlenBuf longAt: 1 bigEndian: self isBigEndian).
 	^ m copyFrom: 1 to: mlen
+]
+
+{ #category : #api }
+Nacl class >> verifyCiphertext: ciphertext senderPublicKey: pk recipientSecretKey: sk andNonce: nonce [
+	"https://doc.libsodium.org/public-key_cryptography/authenticated_encryption
+	Authenticated encryption - Combined mode
+	The authentication tag and the encrypted message are stored together (this is usually what you want).
+	Verifies and decrypts a ciphertext produced by #encryptMessage:withRecipientPublicKey:senderSecretKey:andNonce:. 
+	The nonce has to match the nonce used to encrypt and authenticate the message.
+	
+	WebBrowser openOn: 'https://doc.libsodium.org/public-key_cryptography/authenticated_encryption'	"
+	| c m |
+	c := (ByteArray new: self boxBoxZeroBytes), ciphertext.
+	m := ByteArray new: c size.
+	self checkError: 'crypto_box_open failed' apiResult: (self apiCryptoBoxOpenMessage: m cipher: c cipherLength: c size nonce: nonce pk: pk sk: sk).
+	^ m copyFrom: self boxZeroBytes + 1 to: m size
 ]
 
 { #category : #'accessing platform' }

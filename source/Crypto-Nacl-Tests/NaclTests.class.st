@@ -7,7 +7,7 @@ Class {
 { #category : #test }
 NaclTests >> testBoxKeypairFromSeed [
 	| kp |
-	kp := Nacl boxKeypairFromSeed: (ByteArray new: 0).
+	kp := Nacl deriveKeypairFromSeed: (ByteArray new: 0).
 	self assert: kp publicKey bytes hex equals: '20d2d5a2cdd64d78eeb5437b33d1cb848204f5f3a4665eb5e55e6623387a8667'.
 	self assert: kp secretBytes hex equals: 'cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce'.
 
@@ -48,8 +48,8 @@ NaclTests >> testExampleLowlevel [
 	aliceSeed := '.A man, a plan, a canal, Panama.'.
 	bobSeed := 'Cuis is the best thing on wheels'.
 	
-	aKeys := Nacl boxKeypairFromSeed: aliceSeed asByteArray.
-	bKeys := Nacl boxKeypairFromSeed: bobSeed asByteArray.
+	aKeys := Nacl deriveKeypairFromSeed: aliceSeed asByteArray.
+	bKeys := Nacl deriveKeypairFromSeed: bobSeed asByteArray.
 
 	plainText := 'Quando in le Curso del Eventos human, il deveni necessari
 pro un Populo dissolver le Bandas Politic que les ha con-Nacl boxN
@@ -62,7 +62,7 @@ impelle al Separation.'.
 	nonce := Nacl boxNonce.
 	
 	"Alice encrypts using her private key and Bob's public key"
-	box := Nacl box: plainText asByteArray  nonce: nonce pk: bKeys  publicKey bytes sk: aKeys secretBytes.
+	box := Nacl encryptMessage: plainText asByteArray  withRecipientPublicKey: bKeys publicKey bytes senderSecretKey: aKeys secretBytes andNonce: nonce.
 
 	"Bob decrypts using Alice's public key ahd his private key"
 	self assert: (

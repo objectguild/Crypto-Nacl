@@ -10,7 +10,7 @@ Class {
 
 { #category : #'as yet unclassified' }
 NaclBoxSecretKey class >> fromSeed: seed [
-	^ Nacl boxKeypairFromSeed: seed
+	^ Nacl deriveKeypairFromSeed: seed
 ]
 
 { #category : #'as yet unclassified' }
