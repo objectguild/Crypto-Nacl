@@ -1,7 +1,7 @@
 Class {
 	#name : #BaselineOfCryptoNacl,
 	#superclass : #BaselineOf,
-	#category : #BaselineOfNacl
+	#category : #BaselineOfCryptoNacl
 }
 
 { #category : #baselines }
