@@ -1,0 +1,13 @@
+SmalltalkCISpec {
+  #loading : [
+    SCIMetacelloLoadSpec {
+      #baseline : 'CryptoNacl',
+      #directory : 'source',
+      #load : [ 'tests' ],
+      #platforms : [ #pharo ]
+    }
+  ],
+  #testing : {
+    #categories : [ 'Crypto-Nacl-Tests' ]
+  }
+}
