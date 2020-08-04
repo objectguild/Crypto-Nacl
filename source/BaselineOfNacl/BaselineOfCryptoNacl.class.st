@@ -1,11 +1,11 @@
 Class {
-	#name : #BaselineOfNacl,
+	#name : #BaselineOfCryptoNacl,
 	#superclass : #BaselineOf,
 	#category : #BaselineOfNacl
 }
 
 { #category : #baselines }
-BaselineOfNacl >> baseline: spec [
+BaselineOfCryptoNacl >> baseline: spec [
 	<baseline>
 	spec
 		for: #common
