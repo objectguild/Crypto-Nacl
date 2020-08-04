@@ -35,11 +35,8 @@ Nacl class >> apiCryptoBoxCipher: c message: m messageLength: mlen nonce: n pk: 
 Nacl class >> apiCryptoBoxKeypairPk: pk sk: sk [
 
 	^ self 
-		ffiCall: #(long crypto_box_curve25519xsalsa20poly1305_ref_keypair (byte * pk, byte * sk)) 
-		module: Nacl.
-
-"	<apicall: long 'crypto_box_curve25519xsalsa20poly1305_ref_keypair' (byte* byte*) module: 'libsodium'>
-	^self externalCallFailed"
+		ffiCall: #(int crypto_box_curve25519xsalsa20poly1305_keypair(uchar *pk, uchar *sk)) 
+		module: Nacl
 ]
 
 { #category : #api }
@@ -51,10 +48,10 @@ Nacl class >> apiCryptoBoxOpenMessage: m cipher: c cipherLength: clen nonce: n p
 ]
 
 { #category : #api }
-Nacl class >> apiCryptoHashSha512Output: outByteArray input: inByteArray inputLength: inByteArrayLength [
+Nacl class >> apiCryptoHashSha512Output: out input: in inputLength: inlen [
 
 	^ self 
-		ffiCall: #(int crypto_hash_sha512(uchar *outByteArray, uchar *inByteArray, ulonglong inByteArrayLength)) 
+		ffiCall: #(int crypto_hash_sha512(uchar *out, uchar *in, ulonglong inlen)) 
 		module: Nacl
 ]
 
@@ -67,80 +64,59 @@ Nacl class >> apiCryptoScalarmultCurve25519BaseTarget: pk source: sk [
 ]
 
 { #category : #api }
-Nacl class >> apiCryptoSecretboxCipher: c message: m messageLength: mlen nonce: n key: key [
+Nacl class >> apiCryptoSecretboxCipher: c message: m messageLength: mlen nonce: n key: k [
 
 	^ self 
-		ffiCall: #(long crypto_secretbox_xsalsa20poly1305_ref(byte * c, byte * m, ulonglong mlen, byte * n, byte * key)) 
-		module: Nacl.
-
-"	<apicall: long 'crypto_secretbox_xsalsa20poly1305_ref' (byte* byte* ulonglong byte* byte*) module: 'libsodium'>
-	^self externalCallFailed"
+		ffiCall: #(int crypto_secretbox_xsalsa20poly1305(uchar *c, uchar *m, ulonglong mlen, uchar *n, uchar *k)) 
+		module: Nacl
 ]
 
 { #category : #api }
-Nacl class >> apiCryptoSecretboxOpenMessage: m cipher: c cipherLength: mlen nonce: n key: key [
+Nacl class >> apiCryptoSecretboxOpenMessage: m cipher: c cipherLength: mlen nonce: n key: k [
 
 	^ self 
-		ffiCall: #(long crypto_secretbox_xsalsa20poly1305_ref_open(byte * m, byte * c, ulonglong mlen, byte * n, byte * key)) 
-		module: Nacl.
-
-"	<apicall: long 'crypto_secretbox_xsalsa20poly1305_ref_open' (byte* byte* ulonglong byte* byte*) module: 'libsodium'>
-	^self externalCallFailed"
+		ffiCall: #(int crypto_secretbox_xsalsa20poly1305_open(uchar *m, uchar *c, ulonglong mlen, uchar *n, uchar *k)) 
+		module: Nacl
 ]
 
 { #category : #api }
-Nacl class >> apiCryptoSignBuffer: b bufferLength: blenPtr message: m length: mlen privateKey: sk [ 
+Nacl class >> apiCryptoSignBuffer: sm bufferLength: smlen_p message: m length: mlen privateKey: sk [ 
 
 	^ self 
-		ffiCall: #(long crypto_sign_ed25519_ref(byte * b, byte * blenPtr, byte * m, ulonglong mlen, byte * sk)) 
-		module: Nacl.
-
-"	<apicall: long 'crypto_sign_ed25519_ref' (byte* byte* byte* ulonglong byte*) module: 'libsodium'>
-	^self externalCallFailed"
+		ffiCall: #(int crypto_sign_ed25519(uchar *sm, ulonglong *smlen_p, uchar *m, ulonglong mlen, uchar *sk)) 
+		module: Nacl
 ]
 
 { #category : #api }
 Nacl class >> apiCryptoSignKeypairPk: pk sk: sk [
 
 	^ self 
-		ffiCall: #(long crypto_sign_ed25519_ref_keypair(byte * pk, byte * sk)) 
-		module: Nacl.
-		
-"	<apicall: long 'crypto_sign_ed25519_ref_keypair' (byte* byte*) module: 'libsodium'>
-	^self externalCallFailed"
+		ffiCall: #(int crypto_sign_ed25519_keypair(uchar *pk, uchar *sk)) 
+		module: Nacl
 ]
 
 { #category : #api }
 Nacl class >> apiCryptoSignKeypairPk: pk sk: sk seed: seed [
 
 	^ self 
-		ffiCall: #(long crypto_sign_ed25519_ref_seed_keypair(byte * pk, byte * sk, byte * seed)) 
-		module: Nacl.
-
-"	<apicall: long 'crypto_sign_ed25519_ref_seed_keypair' (byte* byte* byte*) module: 'libsodium'>
-	^self externalCallFailed"
+		ffiCall: #(int crypto_sign_ed25519_seed_keypair(uchar *pk, uchar *sk, uchar *seed)) 
+		module: Nacl
 ]
 
 { #category : #api }
-Nacl class >> apiCryptoSignOpenBuffer: b bufferLength: blenPtr signedMessage: sm length: smlen publicKey: pk [
+Nacl class >> apiCryptoSignOpenBuffer: m bufferLength: mlen_p signedMessage: sm length: smlen publicKey: pk [
 
 	^ self 
-		ffiCall: #(long crypto_sign_ed25519_ref_open (byte * b, byte * blenPtr, byte * sm, ulonglong smlen, byte * pk)) 
-		module: Nacl.
-
-"	<apicall: long 'crypto_sign_ed25519_ref_open' (byte* byte* byte* ulonglong byte*) module: 'libsodium'>
-	^self externalCallFailed"
+		ffiCall: #(int crypto_sign_ed25519_open(uchar *m, ulonglong *mlen_p, uchar *sm, ulonglong smlen, uchar *pk)) 
+		module: Nacl
 ]
 
 { #category : #api }
-Nacl class >> apiRandomBytes: aByteArray length: aByteArrayLength [
+Nacl class >> apiRandomBytes: buf length: buf_len [
 
 	^ self 
-		ffiCall: #(void randombytes (byte * aByteArray, ulonglong aByteArrayLength)) 
-		module: Nacl.
-
-"	<apicall: void 'randombytes' (byte* ulonglong) module: 'libsodium'>
-	^self externalCallFailed"
+		ffiCall: #(void randombytes (uchar *buf, ulonglong buf_len)) 
+		module: Nacl
 ]
 
 { #category : #api }
@@ -363,35 +339,24 @@ Nacl class >> signSeedBytes [
 Nacl class >> sodiumVersionMajor [
 
 	^ self 
-		ffiCall: #(long sodium_version_major ()) 
-		module: Nacl.
-		
-"	<apicall: long 'sodium_version_major' () module: 'libsodium'>
-	^self externalCallFailed"
+		ffiCall: #(int sodium_version_major()) 
+		module: Nacl
 ]
 
 { #category : #api }
 Nacl class >> sodiumVersionMinor [
 
 	^ self 
-		ffiCall: #(long sodium_version_minor ()) 
-		module: Nacl.
-		
-"	<apicall: long 'sodium_version_minor' () module: 'libsodium'>
-	^self externalCallFailed"
+		ffiCall: #(int sodium_version_minor()) 
+		module: Nacl
 ]
 
 { #category : #api }
 Nacl class >> sodiumVersionString [
-	" 
-	Nacl sodiumVersionString 
-	"
+
 	^ self 
-		ffiCall: #(String sodium_version_string ()) 
-		module: Nacl.
-		
-"	<apicall: char* 'sodium_version_string' () module: 'libsodium'>
-	^self externalCallFailed"
+		ffiCall: #(String sodium_version_string()) 
+		module: Nacl
 ]
 
 { #category : #api }
