@@ -25,7 +25,7 @@ Class {
 
 { #category : #api }
 Nacl class >> apiCryptoBoxCipher: c message: m messageLength: mlen nonce: n pk: pk sk: sk [
-
+	self assertInitialized.
 	^ self 
 		ffiCall: #(int crypto_box_curve25519xsalsa20poly1305(uchar *c, uchar *m, ulonglong mlen, uchar *n, uchar *pk, uchar *sk)) 
 		module: Nacl
@@ -33,7 +33,7 @@ Nacl class >> apiCryptoBoxCipher: c message: m messageLength: mlen nonce: n pk: 
 
 { #category : #api }
 Nacl class >> apiCryptoBoxKeypairPk: pk sk: sk [
-
+	self assertInitialized.
 	^ self 
 		ffiCall: #(int crypto_box_curve25519xsalsa20poly1305_keypair(uchar *pk, uchar *sk)) 
 		module: Nacl
@@ -41,7 +41,7 @@ Nacl class >> apiCryptoBoxKeypairPk: pk sk: sk [
 
 { #category : #api }
 Nacl class >> apiCryptoBoxOpenMessage: m cipher: c cipherLength: clen nonce: n pk: pk sk: sk [
-
+	self assertInitialized.
 	^ self 
 		ffiCall: #(int crypto_box_curve25519xsalsa20poly1305_open(uchar *m, uchar *c, ulonglong clen, uchar *n, uchar *pk, uchar *sk)) 
 		module: Nacl
@@ -49,7 +49,7 @@ Nacl class >> apiCryptoBoxOpenMessage: m cipher: c cipherLength: clen nonce: n p
 
 { #category : #api }
 Nacl class >> apiCryptoHashSha512Output: out input: in inputLength: inlen [
-
+	self assertInitialized.
 	^ self 
 		ffiCall: #(int crypto_hash_sha512(uchar *out, uchar *in, ulonglong inlen)) 
 		module: Nacl
@@ -57,7 +57,7 @@ Nacl class >> apiCryptoHashSha512Output: out input: in inputLength: inlen [
 
 { #category : #api }
 Nacl class >> apiCryptoScalarmultCurve25519BaseTarget: pk source: sk [
-
+	self assertInitialized.
 	^ self 
 		ffiCall: #(int crypto_scalarmult_curve25519_base(uchar *pk, uchar *sk)) 
 		module: Nacl
@@ -65,7 +65,7 @@ Nacl class >> apiCryptoScalarmultCurve25519BaseTarget: pk source: sk [
 
 { #category : #api }
 Nacl class >> apiCryptoSecretboxCipher: c message: m messageLength: mlen nonce: n key: k [
-
+	self assertInitialized.
 	^ self 
 		ffiCall: #(int crypto_secretbox_xsalsa20poly1305(uchar *c, uchar *m, ulonglong mlen, uchar *n, uchar *k)) 
 		module: Nacl
@@ -73,7 +73,7 @@ Nacl class >> apiCryptoSecretboxCipher: c message: m messageLength: mlen nonce: 
 
 { #category : #api }
 Nacl class >> apiCryptoSecretboxOpenMessage: m cipher: c cipherLength: mlen nonce: n key: k [
-
+	self assertInitialized.
 	^ self 
 		ffiCall: #(int crypto_secretbox_xsalsa20poly1305_open(uchar *m, uchar *c, ulonglong mlen, uchar *n, uchar *k)) 
 		module: Nacl
@@ -81,7 +81,7 @@ Nacl class >> apiCryptoSecretboxOpenMessage: m cipher: c cipherLength: mlen nonc
 
 { #category : #api }
 Nacl class >> apiCryptoSignBuffer: sm bufferLength: smlen_p message: m length: mlen privateKey: sk [ 
-
+	self assertInitialized.
 	^ self 
 		ffiCall: #(int crypto_sign_ed25519(uchar *sm, ulonglong *smlen_p, uchar *m, ulonglong mlen, uchar *sk)) 
 		module: Nacl
@@ -89,7 +89,7 @@ Nacl class >> apiCryptoSignBuffer: sm bufferLength: smlen_p message: m length: m
 
 { #category : #api }
 Nacl class >> apiCryptoSignKeypairPk: pk sk: sk [
-
+	self assertInitialized.
 	^ self 
 		ffiCall: #(int crypto_sign_ed25519_keypair(uchar *pk, uchar *sk)) 
 		module: Nacl
@@ -97,7 +97,7 @@ Nacl class >> apiCryptoSignKeypairPk: pk sk: sk [
 
 { #category : #api }
 Nacl class >> apiCryptoSignKeypairPk: pk sk: sk seed: seed [
-
+	self assertInitialized.
 	^ self 
 		ffiCall: #(int crypto_sign_ed25519_seed_keypair(uchar *pk, uchar *sk, uchar *seed)) 
 		module: Nacl
@@ -105,18 +105,31 @@ Nacl class >> apiCryptoSignKeypairPk: pk sk: sk seed: seed [
 
 { #category : #api }
 Nacl class >> apiCryptoSignOpenBuffer: m bufferLength: mlen_p signedMessage: sm length: smlen publicKey: pk [
-
+	self assertInitialized.
 	^ self 
 		ffiCall: #(int crypto_sign_ed25519_open(uchar *m, ulonglong *mlen_p, uchar *sm, ulonglong smlen, uchar *pk)) 
 		module: Nacl
 ]
 
 { #category : #api }
-Nacl class >> apiRandomBytes: buf length: buf_len [
+Nacl class >> apiInitialize [
+	^ self 
+		ffiCall: #(int sodium_init(void)) 
+		module: Nacl
+]
 
+{ #category : #api }
+Nacl class >> apiRandomBytes: buf length: buf_len [
+	self assertInitialized.
 	^ self 
 		ffiCall: #(void randombytes (uchar *buf, ulonglong buf_len)) 
 		module: Nacl
+]
+
+{ #category : #api }
+Nacl class >> assertInitialized [
+	self apiInitialize < 0
+		ifTrue: [ NaclError signal: 'Libsodium library couldn''t be initialized, it is not safe to use' ]
 ]
 
 { #category : #api }
