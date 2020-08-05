@@ -1,5 +1,5 @@
 # Crypto-Nacl
-A binding to libsodium for Pharo, updated for Libsodium version 1.0.18.
+A binding to Libsodium for Pharo, updated for Libsodium version 1.0.18.
 
 [![Build Status](https://github.com/objectguild/Crypto-Nacl/workflows/Build/badge.svg)](https://github.com/objectguild/Crypto-Nacl/actions?query=workflow%3ABuild)
 [![Pharo 7.0](https://img.shields.io/badge/Pharo-7.0-informational)](https://pharo.org)
@@ -14,6 +14,8 @@ The original author is [Tony Garnock-Jones](https://github.com/tonyg), with cont
 Since the original implementation by Tony Garnock-Jones, Libsodium has evolved and expanded its functionality, which hasn't been included in this library (yet). See its extensive documentation here: https://doc.libsodium.org/
 
 You can find the original Crypto NaCl site here: http://nacl.cr.yp.to
+
+A good description of the motivation for the original Crypto NaCl library can be found here: [The security impact of a new cryptographic library (PDF)](http://cr.yp.to/highspeed/coolnacl-20120725.pdf)
 
 ## Loading
 The original `ConfigurationOfNacl` has been replaced with `BaselineOfCryptoNacl`, which has groups `core` and `tests`, with default only loading `core`.
