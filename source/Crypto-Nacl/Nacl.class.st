@@ -228,20 +228,45 @@ Nacl class >> generateKeypair [
 
 { #category : #api }
 Nacl class >> hash: aByteArray [
+	self deprecated: 'Please use #hashSHA512: instead'.
+	^ self hashSHA512: aByteArray
+]
+
+{ #category : #api }
+Nacl class >> hashBytes [
+	self deprecated: 'Please use #hashBytes instead'.
+	^ self hashSHA512Bytes
+]
+
+{ #category : #api }
+Nacl class >> hashSHA512: aByteArray [
+	"SHA-2 - SHA-512: https://doc.libsodium.org/advanced/sha-2_hash_function
+
+	The SHA-512 hash function is provided for interoperability with other applications.
+	It is not suitable for hashing passwords or deriving keys from passwords. Use one 
+	of the password hashing methods instead.
+	
+	WebBrowser openOn: 'https://doc.libsodium.org/public-key_cryptography/authenticated_encryption'	"
 	| result |
-	result := ByteArray new: self hashBytes.
+	result := ByteArray new: self hashSHA512Bytes.
 	self checkError: 'crypto_hash failed' apiResult: (self apiCryptoHashSha512Output: result input: aByteArray inputLength: aByteArray size).
 	^ result
 ]
 
 { #category : #api }
-Nacl class >> hashBytes [
+Nacl class >> hashSHA512Bytes [
 	^ 64
 ]
 
 { #category : #api }
 Nacl class >> hashString: aString [
+	self deprecated: 'Please use #hashStringSHA512: instead'.
 	^ self hash: aString asUtf8ByteArray
+]
+
+{ #category : #api }
+Nacl class >> hashStringSHA512: aString [
+	^ self hashSHA512: aString asUtf8ByteArray
 ]
 
 { #category : #testing }
