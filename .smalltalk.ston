@@ -4,7 +4,16 @@ SmalltalkCISpec {
       #baseline : 'CryptoNacl',
       #directory : 'source',
       #load : [ 'tests' ],
-      #platforms : [ #pharo, #squeak ]
+      #onWarningLog : true,
+      #platforms : [ #pharo ]
+    },
+    SCIMetacelloLoadSpec {
+      #baseline : 'CryptoNacl',
+      #directory : 'source',
+      #load : [ 'tests' ],
+      #useLatestMetacello : true,
+      #onWarningLog : true,
+      #platforms : [ #squeak ]
     }
   ],
   #testing : {
