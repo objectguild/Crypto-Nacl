@@ -4,7 +4,7 @@ SmalltalkCISpec {
       #baseline : 'CryptoNacl',
       #directory : 'source',
       #load : [ 'tests' ],
-      #platforms : [ #pharo ]
+      #platforms : [ #pharo, #squeak ]
     }
   ],
   #testing : {

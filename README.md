@@ -2,8 +2,10 @@
 A binding to Libsodium for Pharo, updated for Libsodium version 1.0.18.
 
 [![Build Status](https://github.com/objectguild/Crypto-Nacl/workflows/Build/badge.svg)](https://github.com/objectguild/Crypto-Nacl/actions?query=workflow%3ABuild)
+[![Coverage Status](https://coveralls.io/repos/github/objectguild/Crypto-Nacl/badge.svg?branch=master)](https://coveralls.io/github/objectguild/Crypto-Nacl?branch=master)
 [![Pharo 7.0](https://img.shields.io/badge/Pharo-7.0-informational)](https://pharo.org)
 [![Pharo 8.0](https://img.shields.io/badge/Pharo-8.0-informational)](https://pharo.org)
+[![Squeak 5.3](https://img.shields.io/badge/Squeak-5.3-informational)](https://squeak.org)
 
 The original author is [Tony Garnock-Jones](https://github.com/tonyg), with contributions from [Hernán Morales Durand](https://github.com/hernanmd). See Tony's article on the original code for Squeak and Pharo here: http://www.eighty-twenty.org/index.cgi/tech/smalltalk/nacl-for-squeak-and-pharo-20130601.html. There is still a static copy of the original repository of SmalltalkHub [to be found here](http://static.smalltalkhub.com/tonyg/Crypto-Nacl/index.html).
 
