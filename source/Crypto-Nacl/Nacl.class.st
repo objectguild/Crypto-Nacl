@@ -119,10 +119,12 @@ Nacl class >> apiInitialize [
 ]
 
 { #category : #api }
-Nacl class >> apiRandomBytes: buf length: buf_len [
+Nacl class >> apiRandomBytes: buf length: size [
+	"Fills buf with an unpredictable sequence of size bytes.
+	See for details: https://libsodium.gitbook.io/doc/generating_random_data"
 	self assertInitialized.
 	^ self 
-		ffiCall: #(void randombytes (uchar *buf, ulonglong buf_len)) 
+		ffiCall: #(void randombytes_buf(void *buf, size_t size))
 		module: Nacl
 ]
 

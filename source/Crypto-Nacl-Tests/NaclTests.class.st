@@ -83,6 +83,15 @@ NaclTests >> testHashStringSHA512 [
 ]
 
 { #category : #test }
+NaclTests >> testRandomBytes [
+	self assert: (Nacl randomBytes: 1) size equals: 1.
+	self assert: (Nacl randomBytes: 20) size equals: 20.
+	self assert: (Nacl randomBytes: 32) size equals: 32.
+	self assert: (Nacl randomBytes: 64) size equals: 64.
+
+]
+
+{ #category : #test }
 NaclTests >> testSignKeypairFromSeed [
 	| k sm |
 	k := Nacl signKeypairFromSeed: 'This is my passphrase' asUtf8ByteArray.
