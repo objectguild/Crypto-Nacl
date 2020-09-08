@@ -44,3 +44,10 @@ On Ubuntu Linux, this is done by installing the libsodium-dev package:
 ```
 sudo apt-get install -y libsodium-dev
 ```
+
+## Windows
+On Windows, you need to download and extract a zip file, and copy the DLL file manually.
+
+1. Libsodium for Windows can be downloaded from: https://download.libsodium.org/libsodium/releases/. You probably want the latest stable MSVC release, for example: https://download.libsodium.org/libsodium/releases/libsodium-1.0.18-stable-msvc.zip
+2. Extract the files from the zip file. There are two extracted directories: `x64` and `Win32`. Select `x64` for 64-bit or `Win32` for 32-bit versions of Windows, and search for `libsodium.dll`. You can find one inside `Release/v142/dynamic/libsodium.dll`.
+3. Copy this `libsodium.dll` file and paste it in `C:\Windows\System32`.
