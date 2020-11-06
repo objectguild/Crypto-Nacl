@@ -298,6 +298,13 @@ Nacl class >> isBigEndian [
 ]
 
 { #category : #'as yet unclassified' }
+Nacl class >> pwCheckForRehash: str opslimit: ops memlimit: mem [ 
+	^ self ffiCall:
+			#(int crypto_pwhash_str_needs_rehash(char *str , ulonglong ops , size_t mem))
+		library: Nacl.
+]
+
+{ #category : #'as yet unclassified' }
 Nacl class >> pwHashDefault: password [ 
 | result ops mem|
 	ops := self pwHashOpslimitInteractive.
@@ -320,6 +327,16 @@ Nacl class >> pwHashOpslimitInteractive [
 { #category : #'as yet unclassified' }
 Nacl class >> pwHashStrBytes [
 	^ self ffiCall: #( size_t crypto_pwhash_strbytes() ) library: Nacl 
+]
+
+{ #category : #'as yet unclassified' }
+Nacl class >> pwHashStrNeedsRehash: hashString [
+	| opslimit memlimit str result |
+	str := hashString asUtf8ByteArray.
+	opslimit := self pwHashOpslimitInteractive.
+	memlimit := self pwHashMemlimitInteractive.
+	result := self pwCheckForRehash: str opslimit: opslimit memlimit: memlimit.
+	^ result ~= 0
 ]
 
 { #category : #'as yet unclassified' }
@@ -349,11 +366,6 @@ Nacl class >> pwHashUtf8StringPadded: password [
 { #category : #'as yet unclassified' }
 Nacl class >> pwHashVerify: str in: pwd inLen: pwdlen [
 	^ self ffiCall: #( int crypto_pwhash_str_verify( char *str , char *pwd, ulonglong pwdlen)) library: Nacl
-]
-
-{ #category : #'as yet unclassified' }
-Nacl class >> pwStringHashVerify: str in: pwd inLen: pwdlen [
-	^ self ffiCall: #( int crypto_pwhash_str_verify( char *str , char *pwh, ulonglong pwdlen)) library: Nacl
 ]
 
 { #category : #api }
