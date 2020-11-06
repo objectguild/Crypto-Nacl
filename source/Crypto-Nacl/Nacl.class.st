@@ -319,14 +319,13 @@ self checkError: 'crypto hash failed' apiResult: (self apiPwHashOutput: result i
 
 { #category : #'as yet unclassified' }
 Nacl class >> pwHashMemlimitInteractive [
-	"^ self ffiCall: #(size_t crypto_pwhash_memlimit_interactive()) library: Nacl "
-	^ 65536
+	^ self ffiCall: #(size_t crypto_pwhash_memlimit_interactive()) library: Nacl 
 ]
 
 { #category : #'as yet unclassified' }
 Nacl class >> pwHashOpslimitInteractive [
 	"^ self ffiCall: #( size_t crypto_pwhash_memlimit_interactive() ) library: Nacl"
-	^ 1
+	^ 2
 ]
 
 { #category : #'as yet unclassified' }
