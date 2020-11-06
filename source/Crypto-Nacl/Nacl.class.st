@@ -375,7 +375,7 @@ Nacl class >> pwHashStrNeedsRehash: hashString opslimit: ops memlimit: mem [
 
 { #category : #pwhashing }
 Nacl class >> pwHashString: aString opslimit: ops memlimit: mem [
-	^ self pwHash: aString asUtf8ByteArray opslimit: ops memlimit: mem
+	^ self pwHash: (aString asUtf8ByteArray) opslimit: ops memlimit: mem
 ]
 
 { #category : #pwhashing }
