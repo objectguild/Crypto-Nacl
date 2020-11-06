@@ -55,7 +55,7 @@ Nacl class >> apiCryptoHashSha512Output: out input: in inputLength: inlen [
 		module: Nacl
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #api }
 Nacl class >> apiCryptoPwHashOutput: out input: in inputLength: inlen opsLimit: ops memLimit: mem [
 	self assertInitialized.
 	^ self
@@ -297,73 +297,105 @@ Nacl class >> isBigEndian [
 	^ (Smalltalk at: #EndianDetector) isBigEndian
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'pwhashing/private' }
 Nacl class >> pwCheckForRehash: str opslimit: ops memlimit: mem [ 
 	^ self ffiCall:
 			#(int crypto_pwhash_str_needs_rehash(char *str , ulonglong ops , size_t mem))
 		library: Nacl.
 ]
 
-{ #category : #'as yet unclassified' }
-Nacl class >> pwHashDefault: password [ 
-| result ops mem|
-	ops := self pwHashOpslimitInteractive.
-	mem := self pwHashMemlimitInteractive.
-result := ByteArray new: self pwHashStrBytes.
-self checkError: 'crypto hash failed' apiResult: (self apiCryptoPwHashOutput: result input: password inputLength: password size opsLimit: ops memLimit: mem).
-^ result 
+{ #category : #'pwhashing/private' }
+Nacl class >> pwHash: password opslimit: ops memlimit: mem [
+	| result |
+	result := ByteArray new: self pwHashStrBytes.
+	self
+		checkError: 'crypto hash failed'
+		apiResult:
+			(self
+				apiCryptoPwHashOutput: result
+				input: password
+				inputLength: password size
+				opsLimit: ops
+				memLimit: mem).
+	^ result
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'pwhashing/limits' }
 Nacl class >> pwHashMemlimitInteractive [
 	^ self ffiCall: #(size_t crypto_pwhash_memlimit_interactive()) library: Nacl 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'pwhashing/limits' }
+Nacl class >> pwHashMemlimitMax [
+	^ self ffiCall: #(size_t crypto_pwhash_memlimit_max()) library: Nacl 
+]
+
+{ #category : #'pwhashing/limits' }
+Nacl class >> pwHashMemlimitMin [
+	^ self ffiCall: #(size_t crypto_pwhash_memlimit_min()) library: Nacl 
+]
+
+{ #category : #'pwhashing/limits' }
+Nacl class >> pwHashMemlimitSensitive [
+	^ self ffiCall: #(size_t crypto_pwhash_memlimit_sensitive()) library: Nacl 
+]
+
+{ #category : #'pwhashing/limits' }
 Nacl class >> pwHashOpslimitInteractive [
 	^ self ffiCall: #( size_t crypto_pwhash_opslimit_interactive() ) library: Nacl
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'pwhashing/limits' }
+Nacl class >> pwHashOpslimitMax [
+	^ self ffiCall: #( size_t crypto_pwhash_opslimit_max() ) library: Nacl
+]
+
+{ #category : #'pwhashing/limits' }
+Nacl class >> pwHashOpslimitMin [
+	^ self ffiCall: #( size_t crypto_pwhash_opslimit_min() ) library: Nacl
+]
+
+{ #category : #'pwhashing/limits' }
+Nacl class >> pwHashOpslimitSensitive [
+	^ self ffiCall: #( size_t crypto_pwhash_opslimit_sensitive() ) library: Nacl
+]
+
+{ #category : #'pwhashing/private' }
 Nacl class >> pwHashStrBytes [
 	^ self ffiCall: #( size_t crypto_pwhash_strbytes() ) library: Nacl 
 ]
 
-{ #category : #'as yet unclassified' }
-Nacl class >> pwHashStrNeedsRehash: hashString [
-	| opslimit memlimit str result |
+{ #category : #pwhashing }
+Nacl class >> pwHashStrNeedsRehash: hashString opslimit: ops memlimit: mem [
+	| str result |
 	str := hashString asUtf8ByteArray.
-	opslimit := self pwHashOpslimitInteractive.
-	memlimit := self pwHashMemlimitInteractive.
-	result := self pwCheckForRehash: str opslimit: opslimit memlimit: memlimit.
+	result := self pwCheckForRehash: str opslimit: ops memlimit: mem.
 	^ result ~= 0
 ]
 
-{ #category : #'as yet unclassified' }
-Nacl class >> pwHashString: aString [
-	^ self pwHashDefault: aString asUtf8ByteArray 
+{ #category : #pwhashing }
+Nacl class >> pwHashString: aString opslimit: ops memlimit: mem [
+	^ self pwHash: aString asUtf8ByteArray opslimit: ops memlimit: mem
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #pwhashing }
 Nacl class >> pwHashStringVerified: hashString password: pwd [
 	| hash pwdlen result |
-	hash	:= hashString asUtf8ByteArray.
-	pwdlen :=pwd size.
+	hash := hashString asUtf8ByteArray.
+	pwdlen := pwd size.
 	result := self pwHashVerify: hash in: pwd inLen: pwdlen.
 	^ result = 0
-
-
-
 ]
 
-{ #category : #'as yet unclassified' }
-Nacl class >> pwHashUtf8StringPadded: password [
+{ #category : #pwhashing }
+Nacl class >> pwHashUtf8StringPadded: password opslimit: ops memlimit: mem [
 	| hash |
-	hash := (self pwHashString: password) select: [ :each | each ~= 0 ].
+	hash := (self pwHashString: password opslimit: ops memlimit: mem)
+		select: [ :each | each ~= 0 ].
 	^ hash asUtf8String
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'pwhashing/private' }
 Nacl class >> pwHashVerify: str in: pwd inLen: pwdlen [
 	^ self ffiCall: #( int crypto_pwhash_str_verify( char *str , char *pwd, ulonglong pwdlen)) library: Nacl
 ]
