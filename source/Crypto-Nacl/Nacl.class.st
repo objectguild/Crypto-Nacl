@@ -55,6 +55,13 @@ Nacl class >> apiCryptoHashSha512Output: out input: in inputLength: inlen [
 		module: Nacl
 ]
 
+{ #category : #'as yet unclassified' }
+Nacl class >> apiCryptoPwHashOutput: out input: in inputLength: inlen opsLimit: ops memLimit: mem [
+	self assertInitialized.
+	^ self
+		ffiCall: #( int crypto_pwhash_str(uchar *out , uchar *in , ulonglong inlen , ulonglong ops , size_t mem)) library: Nacl
+]
+
 { #category : #api }
 Nacl class >> apiCryptoScalarmultCurve25519BaseTarget: pk source: sk [
 	self assertInitialized.
@@ -116,23 +123,6 @@ Nacl class >> apiInitialize [
 	^ self 
 		ffiCall: #(int sodium_init(void)) 
 		module: Nacl
-]
-
-{ #category : #'as yet unclassified' }
-Nacl class >> apiPwHashOutput: out input: in inputLength: inlen [
-	|ops mem|
-	ops := self pwHashOpslimitInteractive.
-	mem := self pwHashMemlimitInteractive.
-	self assertInitialized.
-	^ self
-		ffiCall: #( int crypto_pwhash_str(uchar *out , uchar *in , ulonglong inlen , ulonglong ops , size_t mem)) library: Nacl
-]
-
-{ #category : #'as yet unclassified' }
-Nacl class >> apiPwHashOutput: out input: in inputLength: inlen opsLimit: ops memLimit: mem [
-	self assertInitialized.
-	^ self
-		ffiCall: #( int crypto_pwhash_str(uchar *out , uchar *in , ulonglong inlen , ulonglong ops , size_t mem)) library: Nacl
 ]
 
 { #category : #api }
@@ -313,7 +303,7 @@ Nacl class >> pwHashDefault: password [
 	ops := self pwHashOpslimitInteractive.
 	mem := self pwHashMemlimitInteractive.
 result := ByteArray new: self pwHashStrBytes.
-self checkError: 'crypto hash failed' apiResult: (self apiPwHashOutput: result input: password inputLength: password size opsLimit: ops memLimit: mem).
+self checkError: 'crypto hash failed' apiResult: (self apiCryptoPwHashOutput: result input: password inputLength: password size opsLimit: ops memLimit: mem).
 ^ result 
 ]
 
