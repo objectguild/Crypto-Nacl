@@ -328,10 +328,32 @@ Nacl class >> pwHashString: aString [
 ]
 
 { #category : #'as yet unclassified' }
+Nacl class >> pwHashStringVerified: hashString password: pwd [
+	| hash pwdlen result |
+	hash	:= hashString asUtf8ByteArray.
+	pwdlen :=pwd size.
+	result := self pwHashVerify: hash in: pwd inLen: pwdlen.
+	^ result = 0
+
+
+
+]
+
+{ #category : #'as yet unclassified' }
 Nacl class >> pwHashUtf8StringPadded: password [
 	| hash |
 	hash := (self pwHashString: password) select: [ :each | each ~= 0 ].
 	^ hash asUtf8String
+]
+
+{ #category : #'as yet unclassified' }
+Nacl class >> pwHashVerify: str in: pwd inLen: pwdlen [
+	^ self ffiCall: #( int crypto_pwhash_str_verify( char *str , char *pwd, ulonglong pwdlen)) library: Nacl
+]
+
+{ #category : #'as yet unclassified' }
+Nacl class >> pwStringHashVerify: str in: pwd inLen: pwdlen [
+	^ self ffiCall: #( int crypto_pwhash_str_verify( char *str , char *pwh, ulonglong pwdlen)) library: Nacl
 ]
 
 { #category : #api }
