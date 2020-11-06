@@ -327,6 +327,13 @@ Nacl class >> pwHashString: aString [
 	^ self pwHashDefault: aString asUtf8ByteArray 
 ]
 
+{ #category : #'as yet unclassified' }
+Nacl class >> pwHashUtf8StringPadded: password [
+	| hash |
+	hash := (self pwHashString: password) select: [ :each | each ~= 0 ].
+	^ hash asUtf8String
+]
+
 { #category : #api }
 Nacl class >> randomBytes: n [
 	| result |
