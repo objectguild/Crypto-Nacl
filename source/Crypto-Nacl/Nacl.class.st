@@ -118,6 +118,23 @@ Nacl class >> apiInitialize [
 		module: Nacl
 ]
 
+{ #category : #'as yet unclassified' }
+Nacl class >> apiPwHashOutput: out input: in inputLength: inlen [
+	|ops mem|
+	ops := self pwHashOpslimitInteractive.
+	mem := self pwHashMemlimitInteractive.
+	self assertInitialized.
+	^ self
+		ffiCall: #( int crypto_pwhash_str(uchar *out , uchar *in , ulonglong inlen , ulonglong ops , size_t mem)) library: Nacl
+]
+
+{ #category : #'as yet unclassified' }
+Nacl class >> apiPwHashOutput: out input: in inputLength: inlen opsLimit: ops memLimit: mem [
+	self assertInitialized.
+	^ self
+		ffiCall: #( int crypto_pwhash_str(uchar *out , uchar *in , ulonglong inlen , ulonglong ops , size_t mem)) library: Nacl
+]
+
 { #category : #api }
 Nacl class >> apiRandomBytes: buf length: size [
 	"Fills buf with an unpredictable sequence of size bytes.
@@ -288,6 +305,38 @@ Nacl class >> hashStringSHA512: aString [
 Nacl class >> isBigEndian [
 
 	^ (Smalltalk at: #EndianDetector) isBigEndian
+]
+
+{ #category : #'as yet unclassified' }
+Nacl class >> pwHashDefault: password [ 
+| result ops mem|
+	ops := self pwHashOpslimitInteractive.
+	mem := self pwHashMemlimitInteractive.
+result := ByteArray new: self pwHashStrBytes.
+self checkError: 'crypto hash failed' apiResult: (self apiPwHashOutput: result input: password inputLength: password size opsLimit: ops memLimit: mem).
+^ result 
+]
+
+{ #category : #'as yet unclassified' }
+Nacl class >> pwHashMemlimitInteractive [
+	"^ self ffiCall: #(size_t crypto_pwhash_memlimit_interactive()) library: Nacl "
+	^ 65536
+]
+
+{ #category : #'as yet unclassified' }
+Nacl class >> pwHashOpslimitInteractive [
+	"^ self ffiCall: #( size_t crypto_pwhash_memlimit_interactive() ) library: Nacl"
+	^ 1
+]
+
+{ #category : #'as yet unclassified' }
+Nacl class >> pwHashStrBytes [
+	^ self ffiCall: #( size_t crypto_pwhash_strbytes() ) library: Nacl 
+]
+
+{ #category : #'as yet unclassified' }
+Nacl class >> pwHashString: aString [
+	^ self pwHashDefault: aString asUtf8ByteArray 
 ]
 
 { #category : #api }
