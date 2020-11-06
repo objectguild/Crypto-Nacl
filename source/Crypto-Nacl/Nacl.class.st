@@ -324,8 +324,7 @@ Nacl class >> pwHashMemlimitInteractive [
 
 { #category : #'as yet unclassified' }
 Nacl class >> pwHashOpslimitInteractive [
-	"^ self ffiCall: #( size_t crypto_pwhash_memlimit_interactive() ) library: Nacl"
-	^ 2
+	^ self ffiCall: #( size_t crypto_pwhash_opslimit_interactive() ) library: Nacl
 ]
 
 { #category : #'as yet unclassified' }
