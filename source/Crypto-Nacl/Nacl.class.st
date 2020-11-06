@@ -297,17 +297,18 @@ Nacl class >> isBigEndian [
 	^ (Smalltalk at: #EndianDetector) isBigEndian
 ]
 
-{ #category : #'pwhashing/private' }
-Nacl class >> pwCheckForRehash: str opslimit: ops memlimit: mem [ 
-|result|
-self assertInitialized .
-	result:= self ffiCall:
-			#(int crypto_pwhash_str_needs_rehash(char *str , ulonglong ops , size_t mem))
+{ #category : #'password hashing/private' }
+Nacl class >> pwCheckForRehash: str opslimit: ops memlimit: mem [
+	| result |
+	self assertInitialized.
+	result := self
+		ffiCall:
+			#(int crypto_pwhash_str_needs_rehash #(char * str , ulonglong ops , size_t mem))
 		library: Nacl.
- ^ result
+	^ result
 ]
 
-{ #category : #'pwhashing/private' }
+{ #category : #'password hashing/private' }
 Nacl class >> pwHash: password opslimit: ops memlimit: mem [
 	| result |
 	result := ByteArray new: self pwHashStrBytes.
@@ -323,52 +324,52 @@ Nacl class >> pwHash: password opslimit: ops memlimit: mem [
 	^ result
 ]
 
-{ #category : #'pwhashing/limits' }
+{ #category : #'password hashing/limits' }
 Nacl class >> pwHashMemlimitInteractive [
 	^ self ffiCall: #(size_t crypto_pwhash_memlimit_interactive()) library: Nacl 
 ]
 
-{ #category : #'pwhashing/limits' }
+{ #category : #'password hashing/limits' }
 Nacl class >> pwHashMemlimitMax [
 	^ self ffiCall: #(size_t crypto_pwhash_memlimit_max()) library: Nacl 
 ]
 
-{ #category : #'pwhashing/limits' }
+{ #category : #'password hashing/limits' }
 Nacl class >> pwHashMemlimitMin [
 	^ self ffiCall: #(size_t crypto_pwhash_memlimit_min()) library: Nacl 
 ]
 
-{ #category : #'pwhashing/limits' }
+{ #category : #'password hashing/limits' }
 Nacl class >> pwHashMemlimitSensitive [
 	^ self ffiCall: #(size_t crypto_pwhash_memlimit_sensitive()) library: Nacl 
 ]
 
-{ #category : #'pwhashing/limits' }
+{ #category : #'password hashing/limits' }
 Nacl class >> pwHashOpslimitInteractive [
 	^ self ffiCall: #( size_t crypto_pwhash_opslimit_interactive() ) library: Nacl
 ]
 
-{ #category : #'pwhashing/limits' }
+{ #category : #'password hashing/limits' }
 Nacl class >> pwHashOpslimitMax [
 	^ self ffiCall: #( size_t crypto_pwhash_opslimit_max() ) library: Nacl
 ]
 
-{ #category : #'pwhashing/limits' }
+{ #category : #'password hashing/limits' }
 Nacl class >> pwHashOpslimitMin [
 	^ self ffiCall: #( size_t crypto_pwhash_opslimit_min() ) library: Nacl
 ]
 
-{ #category : #'pwhashing/limits' }
+{ #category : #'password hashing/limits' }
 Nacl class >> pwHashOpslimitSensitive [
 	^ self ffiCall: #( size_t crypto_pwhash_opslimit_sensitive() ) library: Nacl
 ]
 
-{ #category : #'pwhashing/private' }
+{ #category : #'password hashing/private' }
 Nacl class >> pwHashStrBytes [
 	^ self ffiCall: #( size_t crypto_pwhash_strbytes() ) library: Nacl 
 ]
 
-{ #category : #pwhashing }
+{ #category : #'password hashing' }
 Nacl class >> pwHashStrNeedsRehash: hashString opslimit: ops memlimit: mem [
 	| result |
 	self assertInitialized.
@@ -379,12 +380,12 @@ Nacl class >> pwHashStrNeedsRehash: hashString opslimit: ops memlimit: mem [
 	^ result ~= 0
 ]
 
-{ #category : #pwhashing }
+{ #category : #'password hashing' }
 Nacl class >> pwHashString: aString opslimit: ops memlimit: mem [
 	^ self pwHash: (aString asUtf8ByteArray) opslimit: ops memlimit: mem
 ]
 
-{ #category : #pwhashing }
+{ #category : #'password hashing' }
 Nacl class >> pwHashStringVerified: hashString password: pwd [
 	| hash pwdlen result |
 	self assertInitialized.
@@ -394,7 +395,7 @@ Nacl class >> pwHashStringVerified: hashString password: pwd [
 	^ result = 0
 ]
 
-{ #category : #pwhashing }
+{ #category : #'password hashing' }
 Nacl class >> pwHashUtf8StringPadded: password opslimit: ops memlimit: mem [
 	| hash |
 	hash := (self pwHashString: password opslimit: ops memlimit: mem)
@@ -402,7 +403,7 @@ Nacl class >> pwHashUtf8StringPadded: password opslimit: ops memlimit: mem [
 	^ hash asUtf8String
 ]
 
-{ #category : #'pwhashing/private' }
+{ #category : #'password hashing/private' }
 Nacl class >> pwHashVerify: str in: pwd inLen: pwdlen [
 	^ self ffiCall: #( int crypto_pwhash_str_verify( char *str , char *pwd, ulonglong pwdlen)) library: Nacl
 ]
