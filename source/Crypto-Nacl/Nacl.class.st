@@ -299,9 +299,12 @@ Nacl class >> isBigEndian [
 
 { #category : #'pwhashing/private' }
 Nacl class >> pwCheckForRehash: str opslimit: ops memlimit: mem [ 
-	^ self ffiCall:
+|result|
+self assertInitialized .
+	result:= self ffiCall:
 			#(int crypto_pwhash_str_needs_rehash(char *str , ulonglong ops , size_t mem))
 		library: Nacl.
+ ^ result
 ]
 
 { #category : #'pwhashing/private' }
@@ -367,9 +370,12 @@ Nacl class >> pwHashStrBytes [
 
 { #category : #pwhashing }
 Nacl class >> pwHashStrNeedsRehash: hashString opslimit: ops memlimit: mem [
-	| str result |
-	str := hashString asUtf8ByteArray.
-	result := self pwCheckForRehash: str opslimit: ops memlimit: mem.
+	| result |
+	self assertInitialized.
+	result := self
+		pwCheckForRehash: hashString
+		opslimit: ops
+		memlimit: mem.
 	^ result ~= 0
 ]
 
@@ -381,6 +387,7 @@ Nacl class >> pwHashString: aString opslimit: ops memlimit: mem [
 { #category : #pwhashing }
 Nacl class >> pwHashStringVerified: hashString password: pwd [
 	| hash pwdlen result |
+	self assertInitialized.
 	hash := hashString asUtf8ByteArray.
 	pwdlen := pwd size.
 	result := self pwHashVerify: hash in: pwd inLen: pwdlen.
