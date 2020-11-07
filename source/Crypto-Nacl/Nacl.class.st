@@ -371,11 +371,17 @@ Nacl class >> pwHashStrBytes [
 
 { #category : #'password hashing' }
 Nacl class >> pwHashString: aString opslimit: ops memlimit: mem [
+	"Password hashing for password storage as per https://doc.libsodium.org/password_hashing/default_phf.
+	Hashes the input string. ops is the maximum amount of computations to perform, and mem is the maximum
+	amount of RAM to use. These are provided by libsodium, see pwHashOpslimit* and pwHashMemlimit* methond.
+	The result is a ByteArray of size crypto_pwhash_STRBYTES. Actual hash can be smaller, so the array is
+	padded with zeroes an the right. To get just the string containing the hash use pwHashUtf8StringClean."
 	^ self pwHash: (aString asUtf8ByteArray) opslimit: ops memlimit: mem
 ]
 
 { #category : #'password hashing' }
 Nacl class >> pwHashStringIsVerified: hashString password: pwd [
+	"Check if the hash hashString (provided by pwHashUtf8StringClean) can be verified against password pwd."
 	| hash pwdlen result |
 	self assertInitialized.
 	hash := hashString asUtf8ByteArray.
@@ -386,6 +392,8 @@ Nacl class >> pwHashStringIsVerified: hashString password: pwd [
 
 { #category : #'password hashing' }
 Nacl class >> pwHashStringNeedsRehash: hashString opslimit: ops memlimit: mem [
+	"Check if the given hashString needs to be rehashed due to changes in recommended values.
+	The method should be provided with the same opslimit and memlimit as the original pwHashString."
 	| result |
 	self assertInitialized.
 	result := self
@@ -396,7 +404,7 @@ Nacl class >> pwHashStringNeedsRehash: hashString opslimit: ops memlimit: mem [
 ]
 
 { #category : #'password hashing' }
-Nacl class >> pwHashUtf8StringPadded: password opslimit: ops memlimit: mem [
+Nacl class >> pwHashUtf8StringClean: password opslimit: ops memlimit: mem [
 	| hash |
 	hash := (self pwHashString: password opslimit: ops memlimit: mem)
 		select: [ :each | each ~= 0 ].

@@ -87,8 +87,8 @@ NaclTests >> testPwHashString [
 	| ops mem a b |
 	ops := Nacl pwHashOpslimitInteractive.
 	mem := Nacl pwHashMemlimitInteractive.
-	a := Nacl pwHashUtf8StringPadded: 'test' opslimit: ops memlimit: mem.
-	b := Nacl pwHashUtf8StringPadded: 'test' opslimit: ops memlimit: mem.
+	a := Nacl pwHashUtf8StringClean: 'test' opslimit: ops memlimit: mem.
+	b := Nacl pwHashUtf8StringClean: 'test' opslimit: ops memlimit: mem.
 	self assert: a ~= b
 ]
 
@@ -97,7 +97,7 @@ NaclTests >> testPwHashVerify [
 	| ops mem hashString |
 	ops := Nacl pwHashOpslimitInteractive.
 	mem := Nacl pwHashMemlimitInteractive.
-	hashString := Nacl pwHashUtf8StringPadded: 'test' opslimit: ops memlimit: mem.
+	hashString := Nacl pwHashUtf8StringClean: 'test' opslimit: ops memlimit: mem.
 	self assert: (Nacl pwHashStringIsVerified: hashString password: 'test') equals: true.
 ]
 
@@ -106,7 +106,7 @@ NaclTests >> testPwNeedsRehash [
 	| ops mem hashString |
 	ops := Nacl pwHashOpslimitInteractive.
 	mem := Nacl pwHashMemlimitInteractive.
-	hashString := Nacl pwHashUtf8StringPadded: 'test' opslimit: ops memlimit: mem.
+	hashString := Nacl pwHashUtf8StringClean: 'test' opslimit: ops memlimit: mem.
 	self assert: ( Nacl pwHashStringNeedsRehash: hashString  opslimit: ops memlimit: mem ) equals: false.
 	self assert: ( Nacl pwHashStringNeedsRehash: hashString  opslimit: Nacl pwHashOpslimitSensitive memlimit: mem ) equals: true.
 ]
