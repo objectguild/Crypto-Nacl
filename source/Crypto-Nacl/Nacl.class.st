@@ -370,7 +370,22 @@ Nacl class >> pwHashStrBytes [
 ]
 
 { #category : #'password hashing' }
-Nacl class >> pwHashStrNeedsRehash: hashString opslimit: ops memlimit: mem [
+Nacl class >> pwHashString: aString opslimit: ops memlimit: mem [
+	^ self pwHash: (aString asUtf8ByteArray) opslimit: ops memlimit: mem
+]
+
+{ #category : #'password hashing' }
+Nacl class >> pwHashStringIsVerified: hashString password: pwd [
+	| hash pwdlen result |
+	self assertInitialized.
+	hash := hashString asUtf8ByteArray.
+	pwdlen := pwd size.
+	result := self pwHashVerify: hash in: pwd inLen: pwdlen.
+	^ result = 0
+]
+
+{ #category : #'password hashing' }
+Nacl class >> pwHashStringNeedsRehash: hashString opslimit: ops memlimit: mem [
 	| result |
 	self assertInitialized.
 	result := self
@@ -378,21 +393,6 @@ Nacl class >> pwHashStrNeedsRehash: hashString opslimit: ops memlimit: mem [
 		opslimit: ops
 		memlimit: mem.
 	^ result ~= 0
-]
-
-{ #category : #'password hashing' }
-Nacl class >> pwHashString: aString opslimit: ops memlimit: mem [
-	^ self pwHash: (aString asUtf8ByteArray) opslimit: ops memlimit: mem
-]
-
-{ #category : #'password hashing' }
-Nacl class >> pwHashStringVerified: hashString password: pwd [
-	| hash pwdlen result |
-	self assertInitialized.
-	hash := hashString asUtf8ByteArray.
-	pwdlen := pwd size.
-	result := self pwHashVerify: hash in: pwd inLen: pwdlen.
-	^ result = 0
 ]
 
 { #category : #'password hashing' }
