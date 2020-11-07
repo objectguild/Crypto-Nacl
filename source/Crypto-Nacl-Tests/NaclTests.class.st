@@ -84,6 +84,7 @@ NaclTests >> testHashStringSHA512 [
 
 { #category : #tests }
 NaclTests >> testPwHashString [
+	"libsodium does not provide the same hash for the same password."
 	| ops mem a b |
 	ops := Nacl pwHashOpslimitInteractive.
 	mem := Nacl pwHashMemlimitInteractive.
@@ -103,6 +104,7 @@ NaclTests >> testPwHashVerify [
 
 { #category : #tests }
 NaclTests >> testPwNeedsRehash [
+	"Rehash is required whenever requirements change."
 	| ops mem hashString |
 	ops := Nacl pwHashOpslimitInteractive.
 	mem := Nacl pwHashMemlimitInteractive.

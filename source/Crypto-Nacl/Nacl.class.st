@@ -57,6 +57,7 @@ Nacl class >> apiCryptoHashSha512Output: out input: in inputLength: inlen [
 
 { #category : #api }
 Nacl class >> apiCryptoPwHashOutput: out input: in inputLength: inlen opsLimit: ops memLimit: mem [
+	"Low level api. Use pwHashString or pwHashUtf8StringClean"
 	self assertInitialized.
 	^ self
 		ffiCall: #( int crypto_pwhash_str(uchar *out , uchar *in , ulonglong inlen , ulonglong ops , size_t mem)) library: Nacl
@@ -366,6 +367,8 @@ Nacl class >> pwHashOpslimitSensitive [
 
 { #category : #'password hashing/private' }
 Nacl class >> pwHashStrBytes [
+	"The maximum number of bytes in password hash. Provided by libsodium and can change.
+	The actual hash size can be smaller."
 	^ self ffiCall: #( size_t crypto_pwhash_strbytes() ) library: Nacl 
 ]
 
