@@ -56,6 +56,14 @@ Nacl class >> apiCryptoHashSha512Output: out input: in inputLength: inlen [
 ]
 
 { #category : #api }
+Nacl class >> apiCryptoPwHashOutput: out input: in inputLength: inlen opsLimit: ops memLimit: mem [
+	"Low level api. Use pwHashString or pwHashUtf8StringClean"
+	self assertInitialized.
+	^ self
+		ffiCall: #( int crypto_pwhash_str(uchar *out , uchar *in , ulonglong inlen , ulonglong ops , size_t mem)) library: Nacl
+]
+
+{ #category : #api }
 Nacl class >> apiCryptoScalarmultCurve25519BaseTarget: pk source: sk [
 	self assertInitialized.
 	^ self 
@@ -288,6 +296,127 @@ Nacl class >> hashStringSHA512: aString [
 Nacl class >> isBigEndian [
 
 	^ (Smalltalk at: #EndianDetector) isBigEndian
+]
+
+{ #category : #'password hashing/private' }
+Nacl class >> pwCheckForRehash: str opslimit: ops memlimit: mem [
+	| result |
+	self assertInitialized.
+	result := self
+		ffiCall:
+			#(int crypto_pwhash_str_needs_rehash #(char * str , ulonglong ops , size_t mem))
+		library: Nacl.
+	^ result
+]
+
+{ #category : #'password hashing/private' }
+Nacl class >> pwHash: password opslimit: ops memlimit: mem [
+	| result |
+	result := ByteArray new: self pwHashStrBytes.
+	self
+		checkError: 'crypto hash failed'
+		apiResult:
+			(self
+				apiCryptoPwHashOutput: result
+				input: password
+				inputLength: password size
+				opsLimit: ops
+				memLimit: mem).
+	^ result
+]
+
+{ #category : #'password hashing/limits' }
+Nacl class >> pwHashMemlimitInteractive [
+	^ self ffiCall: #(size_t crypto_pwhash_memlimit_interactive()) library: Nacl 
+]
+
+{ #category : #'password hashing/limits' }
+Nacl class >> pwHashMemlimitMax [
+	^ self ffiCall: #(size_t crypto_pwhash_memlimit_max()) library: Nacl 
+]
+
+{ #category : #'password hashing/limits' }
+Nacl class >> pwHashMemlimitMin [
+	^ self ffiCall: #(size_t crypto_pwhash_memlimit_min()) library: Nacl 
+]
+
+{ #category : #'password hashing/limits' }
+Nacl class >> pwHashMemlimitSensitive [
+	^ self ffiCall: #(size_t crypto_pwhash_memlimit_sensitive()) library: Nacl 
+]
+
+{ #category : #'password hashing/limits' }
+Nacl class >> pwHashOpslimitInteractive [
+	^ self ffiCall: #( size_t crypto_pwhash_opslimit_interactive() ) library: Nacl
+]
+
+{ #category : #'password hashing/limits' }
+Nacl class >> pwHashOpslimitMax [
+	^ self ffiCall: #( size_t crypto_pwhash_opslimit_max() ) library: Nacl
+]
+
+{ #category : #'password hashing/limits' }
+Nacl class >> pwHashOpslimitMin [
+	^ self ffiCall: #( size_t crypto_pwhash_opslimit_min() ) library: Nacl
+]
+
+{ #category : #'password hashing/limits' }
+Nacl class >> pwHashOpslimitSensitive [
+	^ self ffiCall: #( size_t crypto_pwhash_opslimit_sensitive() ) library: Nacl
+]
+
+{ #category : #'password hashing/private' }
+Nacl class >> pwHashStrBytes [
+	"The maximum number of bytes in password hash. Provided by libsodium and can change.
+	The actual hash size can be smaller."
+	^ self ffiCall: #( size_t crypto_pwhash_strbytes() ) library: Nacl 
+]
+
+{ #category : #'password hashing' }
+Nacl class >> pwHashString: aString opslimit: ops memlimit: mem [
+	"Password hashing for password storage as per https://doc.libsodium.org/password_hashing/default_phf.
+	Hashes the input string. ops is the maximum amount of computations to perform, and mem is the maximum
+	amount of RAM to use. These are provided by libsodium, see pwHashOpslimit* and pwHashMemlimit* methond.
+	The result is a ByteArray of size crypto_pwhash_STRBYTES. Actual hash can be smaller, so the array is
+	padded with zeroes an the right. To get just the string containing the hash use pwHashUtf8StringClean."
+	^ self pwHash: (aString asUtf8ByteArray) opslimit: ops memlimit: mem
+]
+
+{ #category : #'password hashing' }
+Nacl class >> pwHashStringIsVerified: hashString password: pwd [
+	"Check if the hash hashString (provided by pwHashUtf8StringClean) can be verified against password pwd."
+	| hash pwdlen result |
+	self assertInitialized.
+	hash := hashString asUtf8ByteArray.
+	pwdlen := pwd size.
+	result := self pwHashVerify: hash in: pwd inLen: pwdlen.
+	^ result = 0
+]
+
+{ #category : #'password hashing' }
+Nacl class >> pwHashStringNeedsRehash: hashString opslimit: ops memlimit: mem [
+	"Check if the given hashString needs to be rehashed due to changes in recommended values.
+	The method should be provided with the same opslimit and memlimit as the original pwHashString."
+	| result |
+	self assertInitialized.
+	result := self
+		pwCheckForRehash: hashString
+		opslimit: ops
+		memlimit: mem.
+	^ result ~= 0
+]
+
+{ #category : #'password hashing' }
+Nacl class >> pwHashUtf8StringClean: password opslimit: ops memlimit: mem [
+	| hash |
+	hash := (self pwHashString: password opslimit: ops memlimit: mem)
+		select: [ :each | each ~= 0 ].
+	^ hash asUtf8String
+]
+
+{ #category : #'password hashing/private' }
+Nacl class >> pwHashVerify: str in: pwd inLen: pwdlen [
+	^ self ffiCall: #( int crypto_pwhash_str_verify( char *str , char *pwd, ulonglong pwdlen)) library: Nacl
 ]
 
 { #category : #api }

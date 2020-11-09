@@ -82,6 +82,37 @@ NaclTests >> testHashStringSHA512 [
 	self assert: (Nacl hashStringSHA512: 'The quick brown fox jumps over the lazy dog.') hex equals: '91ea1245f20d46ae9a037a989f54f1f790f0a47607eeb8a14d12890cea77a1bbc6c7ed9cf205e67b7f2b8fd4c7dfd3a7a8617e45f3c463d481c7e586c39ac1ed'.
 ]
 
+{ #category : #tests }
+NaclTests >> testPwHashString [
+	"libsodium does not provide the same hash for the same password."
+	| ops mem a b |
+	ops := Nacl pwHashOpslimitInteractive.
+	mem := Nacl pwHashMemlimitInteractive.
+	a := Nacl pwHashUtf8StringClean: 'test' opslimit: ops memlimit: mem.
+	b := Nacl pwHashUtf8StringClean: 'test' opslimit: ops memlimit: mem.
+	self assert: a ~= b
+]
+
+{ #category : #tests }
+NaclTests >> testPwHashVerify [
+	| ops mem hashString |
+	ops := Nacl pwHashOpslimitInteractive.
+	mem := Nacl pwHashMemlimitInteractive.
+	hashString := Nacl pwHashUtf8StringClean: 'test' opslimit: ops memlimit: mem.
+	self assert: (Nacl pwHashStringIsVerified: hashString password: 'test') equals: true.
+]
+
+{ #category : #tests }
+NaclTests >> testPwNeedsRehash [
+	"Rehash is required whenever requirements change."
+	| ops mem hashString |
+	ops := Nacl pwHashOpslimitInteractive.
+	mem := Nacl pwHashMemlimitInteractive.
+	hashString := Nacl pwHashUtf8StringClean: 'test' opslimit: ops memlimit: mem.
+	self assert: ( Nacl pwHashStringNeedsRehash: hashString  opslimit: ops memlimit: mem ) equals: false.
+	self assert: ( Nacl pwHashStringNeedsRehash: hashString  opslimit: Nacl pwHashOpslimitSensitive memlimit: mem ) equals: true.
+]
+
 { #category : #test }
 NaclTests >> testRandomBytes [
 	self assert: (Nacl randomBytes: 1) size equals: 1.
