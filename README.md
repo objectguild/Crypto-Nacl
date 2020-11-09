@@ -16,8 +16,21 @@ You can find the original Crypto NaCl site here: http://nacl.cr.yp.to
 
 A good description of the motivation for the original Crypto NaCl library can be found here: [The security impact of a new cryptographic library (PDF)](http://cr.yp.to/highspeed/coolnacl-20120725.pdf)
 
+## Collective Code Construction Contract (C4)
+It is Object Guild's intention to use the [Collective Code Construction Contract (C4)](https://rfc.zeromq.org/spec/42/) for collaboration on this project. Please familiarize yourself with its contents when you want to collaborate on Crypto-Nacl.
+
+The C4 states that the project should have clearly documented guidelines for code style. Since these are currently missing (9 November 2020), these will be created as needed and will thus be a work in progress.
+
+We will use incoming issues and pull requests for purposes of learning to apply C4, so please be patient with us :-) 
+
+Comments are welcome. You are kindly requested to use the [project issue tracker](https://github.com/objectguild/Crypto-Nacl/issues) for this purpose.
+
+
 ## No Squeak support
 Since 2017, the library uses Pharo UnifiedFFI instead of the older FFI library. As a consequence, it is not supported to run on Squeak.
+
+If there is a strong need to re-introduce Squeak support, please [create an issue for it](https://github.com/objectguild/Crypto-Nacl/issues/new). Obviously, the design can be changed to extract the use of Pharo UnifiedFFI and support Squeak's FFI alongside of it, but this will require some work.
+
 
 ## Loading
 The original `ConfigurationOfNacl` has been replaced with `BaselineOfCryptoNacl`, which defines the groups `core` and `tests`, with the default only loading the `core` group.
